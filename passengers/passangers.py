@@ -9,12 +9,15 @@ def process(data, events, car):
             for train in data:
                 for carT in train['cars']:
                     for people in carT['people']:
+                        bool_people=False
                         if people==event['passenger']:
                             carT['people'].remove(people)
                             number=0
                             number=train['cars'].index(carT)+int(event['distance'])
                             if number<0:return -1
+                            if number>len(train['cars']):return -1
                             train['cars'][number]['people'].append(people)
+                            bool_people=True
                             break
                     else:
                         continue
@@ -24,6 +27,8 @@ def process(data, events, car):
                 break
             else:
                 continue
+        if not bool_people:return -1
+
 
         if event['type']=='switch':
             for train in data:
@@ -33,7 +38,7 @@ def process(data, events, car):
                     for i in range(int(event['cars'])):
                         if not train['cars']:return -1
                         train_ch.append(train['cars'].pop())
-                        train_ch.reverse()
+                    train_ch.reverse()
                     for train in data:
                         if train['name']==event['train_to']:
                            train['cars'].extend(train_ch)
