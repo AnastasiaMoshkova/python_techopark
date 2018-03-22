@@ -2,10 +2,7 @@
 
 
 def process(data, events, car):
-    '''
-        ТУТ ДОЛЖЕН БЫТЬ ВАШ КОД
-    
-    '''
+
     j=0
     for event in events:
         if event['type']=='walk':
