@@ -15,7 +15,7 @@ def process(data, events, car):
                             number=0
                             number=train['cars'].index(carT)+int(event['distance'])
                             if number<0:return -1
-                            if number>len(train['cars']):return -1
+                            if number>=len(train['cars']):return -1
                             train['cars'][number]['people'].append(people)
                             bool_people=True
                             break
