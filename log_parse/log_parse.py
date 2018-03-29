@@ -40,13 +40,13 @@ def parse(
     return new_list
 
 def parse_file(
-    ignore_files=False,
-    ignore_urls=[],
-    start_at=None,
-    stop_at=None,
-    request_type=None,
-    ignore_www=False,
-    slow_queries=False
+    ignore_files,
+    ignore_urls,
+    start_at,
+    stop_at,
+    request_type,
+    ignore_www,
+    slow_queries
 ):
 
     dict_log={}
