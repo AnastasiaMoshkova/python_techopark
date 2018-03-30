@@ -61,38 +61,36 @@ def parse_file(
             if stop_at:
                 stop_date=datetime.strptime(stop_at, '%d/%b/%Y %H:%M:%S')
                 if date_inline>stop_date:continue
+        
+            if '"' in line:
+                result_first = re.split(r'["]', line)
+            else: continue
+            if ' ' in result_first[1]:
+                result_second = re.split(r'[\s]', result_first[1])
+            else: continue
+            if request_type and not result_second[0]==str(request_type):
+                continue
             
-            result_first = re.split(r'["]', line)
-            result_second = re.split(r'[\s]', result_first[1])
-            if request_type and not result_second[0]==str(request_type):continue
-            result_line_one = re.split(r'//', result_second[1])
-            result_line=result_line_one[1]
-            
-            if '?' in result_line:
-               result_line_two = re.split(r'\?.*', result_line)
-               result_line=result_line_two[0]
-
+            result_line = re.split(r'//', result_second[1])[1]
+            result_line = re.split(r'\?.*', result_line)[0]
             word = re.findall(r'\w+$', line)
             
             if ignore_files:
                 str_split = re.split(r'[.]', result_line)
                 result_third=str_split.pop()
-                if 0<len(result_third)<4:continue
+                if 0<len(result_third)<4:
+                    continue
 
             if ignore_www and result_line[0:4]=='www.':
-                result_forth = re.search(r'www.', result_line)
-                if result_forth:
-                    result_line_three = re.split(r'www.', result_line)
-                    result_line=result_line_three[1]
+                result_line = re.split(r'www.', result_line)[1]
                
             if ignore_urls:
                 for j in range(len(ignore_urls)):
-                    if '?' in ignore_urls:
-                        line_url = re.split(r'\?.*', ignore_urls)
-                        result_line_url=line_url[0]
-                    if result_line_url[-1]=='/':
+                    line_url = re.split(r'\?.*', ignore_urls[j])[0]
+                    if line_url[-1]=='/':
                         result_line_url=result_line_url[:-1]
-                    if result_line==result_line_url:continue
+                    if result_line==line_url:
+                        continue
 
             if result_line[-1]=='/':
                 result_line=result_line[:-1]
