@@ -47,6 +47,9 @@ def parse_file(
     ignore_www=False,
     slow_queries=False
 ):
+    
+    if ignore_urls:
+        result_url=ignoreurl(ignore_urls)
 
     dict_log= defaultdict(lambda:[0,0,0])
     f = open('log.log')
@@ -83,14 +86,10 @@ def parse_file(
 
             if ignore_www and result_line[0:4]=='www.':
                 result_line = re.split(r'www.', result_line)[1]
-               
+            
             if ignore_urls:
-                for j in range(len(ignore_urls)):
-                    line_url = re.split(r'\?.*', ignore_urls[j])[0]
-                    if line_url[-1]=='/':
-                        result_line_url=result_line_url[:-1]
-                    if result_line==line_url:
-                        continue
+                if result_line in result_url:
+                    continue
 
             if result_line[-1]=='/':
                 result_line=result_line[:-1]
@@ -102,4 +101,16 @@ def parse_file(
     f.close()
     
     return dict_log
+
+def ignoreurl(ignore_urls):
+    result_url=[]
+    for j in range(len(ignore_urls)):
+        if '//' in ignore_urls[j]:
+            line_url = re.split(r'//', ignore_urls[j])[1]
+        else:continue
+        result_line_url = re.split(r'\?.*', line_url)[0]
+        if result_line_url[-1]=='/':
+            result_url[j]=result_line_url[:-1]
+
+    return result_url
 
