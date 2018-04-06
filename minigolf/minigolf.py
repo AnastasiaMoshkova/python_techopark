@@ -15,7 +15,7 @@ class Match():
         self._reverse_list = False
         self._flag = False
         self._counter_level = 0
-        self._play_hole()
+        #self._play_hole()
 
     @property
     def finished(self):
@@ -61,7 +61,7 @@ class Match():
             self._list.append(tuple(list_none))
         return self._list
 
-    @property
+    #@property
     def get_winners(self):
         reverse_list = self._reverse_list
         if self._finished:
@@ -118,7 +118,7 @@ class Player:
 class HitsMatch(Match):
 
     def _play_hole(self):
-
+		self._flag=True
         if self._success:
             self._counter += 1
 
