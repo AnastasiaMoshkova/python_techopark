@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 
 import time
@@ -29,11 +30,10 @@ class ServerBaseTest(TestCase):
     def test_base_scenario(self):
         task_id = self.send(b'ADD 1 5 12345')
         self.assertEqual(b'YES', self.send(b'IN 1 ' + task_id))
-
         self.assertEqual(task_id + b' 5 12345', self.send(b'GET 1'))
         self.assertEqual(b'YES', self.send(b'IN 1 ' + task_id))
-        self.assertEqual(b'YES', self.send(b'ACK 1 ' + task_id))
-        self.assertEqual(b'NO', self.send(b'ACK 1 ' + task_id))
+        self.assertEqual(b'OK', self.send(b'ACK 1 ' + task_id))
+        self.assertEqual(b'', self.send(b'ACK 1 ' + task_id))
         self.assertEqual(b'NO', self.send(b'IN 1 ' + task_id))
 
     def test_two_tasks(self):
@@ -47,8 +47,8 @@ class ServerBaseTest(TestCase):
         self.assertEqual(b'YES', self.send(b'IN 1 ' + second_task_id))
         self.assertEqual(second_task_id + b' 5 12345', self.send(b'GET 1'))
 
-        self.assertEqual(b'YES', self.send(b'ACK 1 ' + second_task_id))
-        self.assertEqual(b'NO', self.send(b'ACK 1 ' + second_task_id))
+        self.assertEqual(b'OK', self.send(b'ACK 1 ' + second_task_id))
+        self.assertEqual(b'', self.send(b'ACK 1 ' + second_task_id))
 
 
 if __name__ == '__main__':
