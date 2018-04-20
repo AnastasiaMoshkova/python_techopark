@@ -20,9 +20,11 @@ class ServerBaseTest(TestCase):
         self.server.wait()
 
     def send(self, command):
+        #time.sleep(0.5)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('127.0.0.1', 5555))
         s.send(command)
+        time.sleep(0.5)
         data = s.recv(1000000)
         s.close()
         return data
@@ -37,15 +39,15 @@ class ServerBaseTest(TestCase):
         self.assertEqual(b'NO', self.send(b'IN 1 ' + task_id))
 
     def test_two_tasks(self):
-        first_task_id = self.send(b'ADD 1 5 12345')
-        second_task_id = self.send(b'ADD 1 5 12345')
+        first_task_id = self.send(b'ADD 1 6 123456')
+        second_task_id = self.send(b'ADD 1 7 1234567')
         self.assertEqual(b'YES', self.send(b'IN 1 ' + first_task_id))
         self.assertEqual(b'YES', self.send(b'IN 1 ' + second_task_id))
 
-        self.assertEqual(first_task_id + b' 5 12345', self.send(b'GET 1'))
+        self.assertEqual(first_task_id + b' 6 123456', self.send(b'GET 1'))
         self.assertEqual(b'YES', self.send(b'IN 1 ' + first_task_id))
         self.assertEqual(b'YES', self.send(b'IN 1 ' + second_task_id))
-        self.assertEqual(second_task_id + b' 5 12345', self.send(b'GET 1'))
+        self.assertEqual(second_task_id + b' 7 1234567', self.send(b'GET 1'))
 
         self.assertEqual(b'OK', self.send(b'ACK 1 ' + second_task_id))
         self.assertEqual(b'', self.send(b'ACK 1 ' + second_task_id))

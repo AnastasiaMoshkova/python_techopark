@@ -2,10 +2,11 @@ import socket
 import uuid
 import re
 from datetime import datetime
-import time
-from datetime import date
 from datetime import timedelta
 import json
+from sys import exc_info
+import pandas as pd
+
 Q = {}
 file = "file.json"
 
@@ -13,6 +14,7 @@ def parser_file(file):
     data = json.load(open(file))
     if data:
         Q = data
+        print(type(Q))
 
 def _add(_queue_,_length_,_data_,conn):
     id = uuid.uuid4()
@@ -33,14 +35,14 @@ def _get(_queue_,conn):
         for task in Q[_queue_]:
             if task["do"] == False:
                 task["do"] = True
-                task["time"] = datetime.today()
+                task["time"] = str(datetime.today())
                 conn.send(
                     task["id"].encode('utf-8') + b" " + task["length"].encode('utf-8') + b" " + task["data"].encode(
                         'utf-8'))
                 break
             else:
-                if ((task["time"] - datetime.today()) >= timedelta(minutes=5)):
-                    task["time"] = datetime.today()
+                if ((pd.to_datetime(task["time"]).to_pydatetime() - datetime.today()) >= timedelta(minutes=5)):
+                    task["time"] = str(datetime.today())
                     conn.send(
                         task["id"].encode('utf-8') + b" " + task["length"].encode('utf-8') + b" " + task["data"].encode(
                             'utf-8'))
@@ -57,7 +59,7 @@ def _ack(_queue_,_id_,conn):
     if Q[_queue_]:
         for i in range(len(Q[_queue_])):
             if (Q[_queue_][i]["id"] == _id_) and (Q[_queue_][i]["do"] == True):
-                if ((Q[_queue_][i]["time"] - datetime.today()) >= timedelta(minutes=5)):
+                if ((pd.to_datetime(Q[_queue_][i]["time"]).to_pydatetime() - datetime.today()) >= timedelta(minutes=5)):
                     Q[_queue_][i]["time"] = ""
                     Q[_queue_][i]["do"] = False
                     break
@@ -98,19 +100,20 @@ def run():
         if data_str[0] == "GET":
             Que = _get(data_str[1], conn)
             json.dump(Que, outfile)
-            print(Que)
+            #print(Que)
         if data_str[0] == "ACK":
             Que = _ack(data_str[1], data_str[2], conn)
             json.dump(Que, outfile)
         if data_str[0] == "IN":
             _in(data_str[1], data_str[2], conn)
 
-
 if __name__ == '__main__':
-    parser_file(file)
+    #parser_file(file)
     while True:
         try:
             run()
         except KeyboardInterrupt:
             break
+        except BaseException as e:
+            print(e, exc_info)
     conn.close()
