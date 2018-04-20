@@ -6,16 +6,17 @@ import time
 from datetime import date
 from datetime import timedelta
 import json
-import io
-Q={}
-file="file.txt"
+Q = {}
+file = "file.json"
 
 def parser_file(file):
-    pass
+    data = json.load(open(file))
+    if data:
+        Q = data
 
 def _add(_queue_,_length_,_data_,conn):
-    id=uuid.uuid4()
-    id=str(uuid.uuid4())
+    id = uuid.uuid4()
+    id = str(uuid.uuid4())
     conn.send(id.encode('utf-8'))
     if _queue_ not in Q:
         Q[_queue_] = []
@@ -25,8 +26,8 @@ def _add(_queue_,_length_,_data_,conn):
     return Q
 
 def _get(_queue_,conn):
-    counter_do=0
-    if (len(Q[_queue_])==0):
+    counter_do = 0
+    if (len(Q[_queue_]) == 0):
         conn.send(b"NONE")
     else:
         for task in Q[_queue_]:
@@ -64,7 +65,7 @@ def _ack(_queue_,_id_,conn):
                     Q[_queue_].pop(i)
                     conn.send(b"OK")
                     break
-        return Q
+    return Q
 
 def _in(_queue_,_id_,conn):
     counter_present=0
@@ -79,16 +80,13 @@ def _in(_queue_,_id_,conn):
                     conn.send(b"NO")
     else:
         conn.send(b"NO")
-    return Q
+    #return Q
 
 def run():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('', 5555))
     sock.listen(1)
     conn, addr = sock.accept()
-
-    #print('connected:', addr)
-
     data = conn.recv(1000000)
     data=data.decode("utf-8")
     data_str = re.split('\s', data)
@@ -99,21 +97,20 @@ def run():
             json.dump(Que, outfile)
         if data_str[0] == "GET":
             Que = _get(data_str[1], conn)
-            #json.dump(Que, outfile)
+            json.dump(Que, outfile)
+            print(Que)
         if data_str[0] == "ACK":
             Que = _ack(data_str[1], data_str[2], conn)
-            #json.dump(Que, outfile)
+            json.dump(Que, outfile)
         if data_str[0] == "IN":
-            Que = _in(data_str[1], data_str[2], conn)
+            _in(data_str[1], data_str[2], conn)
 
 
 if __name__ == '__main__':
-    #file="file.txt"
-    #parser_file(file)
+    parser_file(file)
     while True:
         try:
             run()
         except KeyboardInterrupt:
-            print('KeyboardInterrupt')
             break
     conn.close()
