@@ -83,7 +83,7 @@ def _in(_queue_,_id_,conn,Q):
                     conn.send(b"NO")
     else:
         conn.send(b"NO")
-    #return Q
+    return Q
 
 def run(conn,Q):
     data = conn.recv(1000000)
@@ -101,7 +101,7 @@ def run(conn,Q):
             queue = _ack(data_str[1], data_str[2], conn,Q)
             json.dump(queue, outfile)
     if data_str[0] == "IN":
-        _in(data_str[1], data_str[2], conn,Q)
+        queue=_in(data_str[1], data_str[2], conn,Q)
     return queue
 
 if __name__ == '__main__':
