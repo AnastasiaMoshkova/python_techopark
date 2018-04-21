@@ -6,14 +6,17 @@ from datetime import timedelta
 import json
 from sys import exc_info
 import pandas as pd
+import os
 
 Q = {}
 file = "file.json"
 
 def parser_file(file):
-    data = json.load(open(file))
-    if data:
+    if os.stat(file).st_size != 0:
+        data = json.load(open(file))
+    #if data:
         Q = data
+        print(Q)
         print(type(Q))
 
 def _add(_queue_,_length_,_data_,conn):
@@ -84,11 +87,7 @@ def _in(_queue_,_id_,conn):
         conn.send(b"NO")
     #return Q
 
-def run():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('', 5555))
-    sock.listen(1)
-    conn, addr = sock.accept()
+def run(conn):
     data = conn.recv(1000000)
     data=data.decode("utf-8")
     data_str = re.split('\s', data)
@@ -108,12 +107,16 @@ def run():
             _in(data_str[1], data_str[2], conn)
 
 if __name__ == '__main__':
-    #parser_file(file)
+    parser_file(file)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('', 5555))
+    sock.listen(1)
     while True:
         try:
-            run()
+            conn, addr = sock.accept()
+            run(conn)
+            conn.close()
         except KeyboardInterrupt:
             break
-        except BaseException as e:
-            print(e, exc_info)
-    conn.close()
+
+
