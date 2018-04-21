@@ -4,19 +4,20 @@ import re
 from datetime import datetime
 from datetime import timedelta
 import json
-from sys import exc_info
 import pandas as pd
 import os
 
-Q = {}
-file = "file.json"
+FILE = "file.json"
 
-def parser_file(file):
-    if os.stat(file).st_size != 0:
-        data = json.load(open(file))
+def parser_file(FILE):
+    if os.stat(FILE).st_size != 0:
+        data = json.load(open(FILE))
         Q = data
+    else:
+        Q={}
+    return Q
 
-def _add(_queue_,_length_,_data_,conn):
+def _add(_queue_,_length_,_data_,conn,Q):
     id = uuid.uuid4()
     id = str(uuid.uuid4())
     conn.send(id.encode('utf-8'))
@@ -27,7 +28,7 @@ def _add(_queue_,_length_,_data_,conn):
         Q[_queue_].append({"id": id, "length": _length_, "data": _data_, "time": "","do":False})
     return Q
 
-def _get(_queue_,conn):
+def _get(_queue_,conn,Q):
     counter_do = 0
     if (len(Q[_queue_]) == 0):
         conn.send(b"NONE")
@@ -54,7 +55,7 @@ def _get(_queue_,conn):
                         break
     return Q
 
-def _ack(_queue_,_id_,conn):
+def _ack(_queue_,_id_,conn,Q):
 
     if Q[_queue_]:
         for i in range(len(Q[_queue_])):
@@ -69,7 +70,7 @@ def _ack(_queue_,_id_,conn):
                     break
     return Q
 
-def _in(_queue_,_id_,conn):
+def _in(_queue_,_id_,conn,Q):
     counter_present=0
     if Q[_queue_]:
         for task in Q[_queue_]:
@@ -84,34 +85,34 @@ def _in(_queue_,_id_,conn):
         conn.send(b"NO")
     #return Q
 
-def run(conn):
+def run(conn,Q):
     data = conn.recv(1000000)
     data=data.decode("utf-8")
     data_str = re.split('\s', data)
 
     with open('file.json', 'w') as outfile:
         if data_str[0] == "ADD":
-            Que = _add(data_str[1], data_str[2], data_str[3], conn)
-            json.dump(Que, outfile)
+            queue = _add(data_str[1], data_str[2], data_str[3], conn,Q)
+            json.dump(queue, outfile)
         if data_str[0] == "GET":
-            Que = _get(data_str[1], conn)
-            json.dump(Que, outfile)
-            #print(Que)
+            queue = _get(data_str[1], conn,Q)
+            json.dump(queue, outfile)
         if data_str[0] == "ACK":
-            Que = _ack(data_str[1], data_str[2], conn)
-            json.dump(Que, outfile)
-        if data_str[0] == "IN":
-            _in(data_str[1], data_str[2], conn)
+            queue = _ack(data_str[1], data_str[2], conn,Q)
+            json.dump(queue, outfile)
+    if data_str[0] == "IN":
+        _in(data_str[1], data_str[2], conn,Q)
+    return queue
 
 if __name__ == '__main__':
-    parser_file(file)
+    queue=parser_file(FILE)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('', 5555))
     sock.listen(1)
     while True:
         try:
             conn, addr = sock.accept()
-            run(conn)
+            queue=run(conn,queue)
             conn.close()
         except KeyboardInterrupt:
             break
