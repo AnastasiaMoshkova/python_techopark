@@ -14,10 +14,7 @@ file = "file.json"
 def parser_file(file):
     if os.stat(file).st_size != 0:
         data = json.load(open(file))
-    #if data:
         Q = data
-        print(Q)
-        print(type(Q))
 
 def _add(_queue_,_length_,_data_,conn):
     id = uuid.uuid4()
