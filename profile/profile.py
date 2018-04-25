@@ -12,6 +12,12 @@ def my_decorator(func):
         return result
     return wrapped
 
+def my_decorator_all(klass):
+    for attr_name in ['get_name']:
+        method=getattr(klass,attr_name)
+        setattr(klass,attr_name,my_decorator(method))
+    return klass
+
 
 @my_decorator
 def foo():
@@ -24,5 +30,14 @@ class Bar():
         pass
 
 
+@my_decorator_all
+class Foo():
+    def __init__(self,name):
+        self._name=name
+    def get_name(self):
+        return self._name
+
+
 foo()
 Bar()
+Foo("name").get_name()
