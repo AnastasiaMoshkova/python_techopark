@@ -1,5 +1,4 @@
 import os
-import json
 from collections.abc import MutableMapping
 
 
@@ -8,27 +7,30 @@ class DirDict(MutableMapping):
         self._diectory = diectory
 
     def __setitem__(self, key, value):
-        with open(str(self._diectory)+"\\"+str(key)+".json",'w') as file:
-            json.dump(value,file)
+        file=open(os.path.join(self._diectory, key), 'w')
+        file.write(value)
 
     def __getitem__(self, item):
-            if os.path.isfile((str(self._diectory)+"\\"+str(item)+".json")):
-                data=json.load(open(str(self._diectory)+"\\"+str(item)+".json"))
-                return data
+            if os.path.isfile(os.path.join(self._diectory, item)):
+                data = open(os.path.join(self._diectory, item), 'r')
+                return data.read()
 
     def __delitem__(self, key):
-        if os.path.isfile((str(self._diectory) + "\\" + str(key) + ".json")):
-            value=self.__getitem__(key)
-            os.remove(str(self._diectory)+"\\"+str(key)+".json")
+        print("delitem")
+        if os.path.isfile(os.path.join(self._diectory, key)):
+            value = self[key]
+            os.remove(os.path.join(self._diectory, key))
             return value
 
     def __len__(self):
-        return len([name for name in os.listdir(str(self._diectory))
-                    if (os.path.isfile(os.path.join(str(self._diectory), name)) and name.split(".")[1]=="json")])
+        return len([name for name in os.listdir(self._diectory)
+                    if os.path.isfile(os.path.join(self._diectory, name))])
 
     def __iter__(self):
-        for name in os.listdir(str(self._diectory)):
-            yield (self.__getitem__(name.split(".")[1]),name.split(".")[1])
+        for name in os.listdir(self._diectory):
+            yield (self[name], name)
+
+
 
 
 
