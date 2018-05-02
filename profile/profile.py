@@ -2,7 +2,7 @@ import functools
 import time
 
 
-def my_decorator(func):
+def profile(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         print(func.__name__, "started")
@@ -12,25 +12,25 @@ def my_decorator(func):
         return result
     return wrapped
 
-def my_decorator_all(klass):
+def profile_all(klass):
     for attr_name in ['get_name']:
-        method=getattr(klass,attr_name)
-        setattr(klass,attr_name,my_decorator(method))
+        method = getattr(klass, attr_name)
+        setattr(klass, attr_name, my_decorator(method))
     return klass
 
 
-@my_decorator
+@profile
 def foo():
     pass
 
 
-@my_decorator
+@profile
 class Bar():
     def __init__(self):
         pass
 
 
-@my_decorator_all
+@profile_all
 class Foo():
     def __init__(self,name):
         self._name=name
