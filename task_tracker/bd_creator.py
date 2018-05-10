@@ -5,8 +5,8 @@ conn = sqlite3.connect('mydb.db')
 c = conn.cursor()
 
 c.execute('''PRAGMA foreign_keys = ON''')
-c.execute('''CREATE TABLE users (id INTEGER PRIMARY KEY,first_name TEXT,last_name TEXT,login TEXT)''')
-c.execute('''CREATE TABLE tasks (id INTEGER PRIMARY KEY,name TEXT,status TEXT,parent_id INTEGER,user_id INTEGER,
+c.execute('''CREATE TABLE users (id INTEGER PRIMARY KEY,first_name char(20),last_name char(20),login char(40))''')
+c.execute('''CREATE TABLE tasks (id INTEGER PRIMARY KEY,name char(20),status TEXT,parent_id INTEGER,user_id INTEGER,
 FOREIGN KEY (parent_id) REFERENCES tasks(id),
 FOREIGN KEY (user_id) REFERENCES users(id))''')
 
