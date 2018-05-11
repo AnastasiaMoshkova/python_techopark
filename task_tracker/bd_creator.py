@@ -1,12 +1,14 @@
 import sqlite3
+import uuid
 
 
 conn = sqlite3.connect('mydb.db')
 c = conn.cursor()
 
 c.execute('''PRAGMA foreign_keys = ON''')
-c.execute('''CREATE TABLE users (id INTEGER PRIMARY KEY,first_name char(20),last_name char(20),login char(40))''')
-c.execute('''CREATE TABLE tasks (id INTEGER PRIMARY KEY,name char(20),status TEXT,parent_id INTEGER,user_id INTEGER,
+c.execute('''CREATE TABLE users (id INTEGER PRIMARY KEY,first_name TEXT,last_name TEXT,login TEXT)''')
+c.execute('''CREATE TABLE tasks (id INTEGER PRIMARY KEY,key TEXT,name TEXT,status TEXT,parent_id INTEGER,user_id INTEGER,
+UNIQUE (key COLLATE NOCASE ASC),
 FOREIGN KEY (parent_id) REFERENCES tasks(id),
 FOREIGN KEY (user_id) REFERENCES users(id))''')
 
@@ -26,10 +28,10 @@ conn.commit()
 
 task=[]
 for i in range(90000):
-    task.append('("{}", "{}",{},{})'.format('task'+str(i), "добавлено", 'NULL', 'NULL'))
+    task.append('("{}","{}", "{}",{},{})'.format(str(uuid.uuid4),'task'+str(i), "добавлено", 'NULL', 'NULL'))
 
 for i in range(10000):
-    task.append('("{}", "{}",{},{})'.format('task_user'+str(i), "добавлено", 'NULL', random.randint(1,10000)))
+    task.append('("{}", "{}","{}",{},{})'.format(str(uuid.uuid4),'task_user'+str(i), "добавлено", 'NULL', random.randint(1,10000)))
 
 c.execute("INSERT INTO tasks (name,status,parent_id,user_id) VALUES"+', '.join(task))
 conn.commit()
