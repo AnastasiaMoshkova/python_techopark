@@ -2,9 +2,11 @@ from aiohttp import web
 import asyncio
 import os
 import aiohttp
+import threading
+threads_num = 4
 
 
-directory="E:\\python_h\\asinc0_http\\tmp"
+directory="C:\\Users\\Nastya\\tmp"
 
 import sys
 
@@ -48,7 +50,7 @@ class Task():
     async def mains(self,i,n):
         async with aiohttp.ClientSession() as session:
             html = await self.fetch(session, f'http://localhost:{i}/find/{n}')
-            self.text=html
+            return html
 
     async def answer_server(self, request):
         name = request.match_info.get('name')
@@ -56,9 +58,10 @@ class Task():
             data = open(os.path.join(self._directory, name), 'r')
             text = f'{data.read()}'
             data.close()
+            return web.Response(text=text)
         else:
-            text = 'error'
-        return web.Response(text=text)
+            await asyncio.sleep(2)
+            return web.Response(text='error')
 
     def save_file(self,name,value):
         data = open(os.path.join(self._directory, name), 'w')
@@ -73,34 +76,41 @@ class Task():
             data.close()
             return web.Response(text=self.text)
         else:
+            vect = []
             for port in self._servers:
-                n=await asyncio.ensure_future(self.mains(port,name))
-                if self.text !='error':
-                    if self._save=='yes':
-                        self.save_file(name,self.text)
-                    return web.Response(text=self.text)
-                else:
-                    continue
-            if self.text =='error':
+                vect.append(self.mains(port,name))
+            done, pending = await asyncio.wait(vect,return_when=asyncio.FIRST_COMPLETED)
+            gather = asyncio.gather(*pending)
+            gather.cancel()
+            try:
+                await gather
+            except asyncio.CancelledError:
+                pass
+            answer=done.pop().result()
+            if answer != 'error':
+                if self._save == 'yes':
+                    threads = [threading.Thread(target=self.save_file, args=(name, answer))]
+                    #self.save_file(name, answer)
+                    for t in threads:
+                        t.start()
+                    for t in threads:
+                        t.join()
+                return web.Response(text=answer)
+            else:
                 return web.Response(text='error 404')
 
 
-
-def start(files):
+def start(file):
     try:
         loop = asyncio.get_event_loop()
-
-        for file in files:
-            Task(file,loop)
-
+        Task(file,loop)
         loop.run_forever()
-
         loop.close()
     except Exception as e:
         sys.stderr.write('Error: ' + format(str(e)) + "\n")
         sys.exit(1)
 
 
-file=['a.yaml','b.yaml','c.yaml']
+file=['a.yaml']
 start(file)
 
