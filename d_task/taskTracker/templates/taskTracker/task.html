@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>Tasks</title>
+    </head>
+    <body>
+        <div>
+            <h1><a href="/">Tasks</a></h1>
+        </div>
+
+        {% for task in tasks %}
+            <div>
+                 <p>name: {{ task.name }}</p>
+                 <p>key: {{ task.key }}</p>
+                 <p>status: {{ task.status }}</p>
+                 <p>user_id: {{ task.user_id }}</p>
+                 <p>parent_id: {{ task.parent_id }}</p>
+            </div>
+        {% endfor %}
+
+        {% for user in users %}
+            <div>
+                 <p>username: {{ user.username }}</p>
+
+            </div>
+        {% endfor %}
+        <div>
+            <p>username: {{ file }}</p>
+
+        </div>
+
+    </body>
+</html>

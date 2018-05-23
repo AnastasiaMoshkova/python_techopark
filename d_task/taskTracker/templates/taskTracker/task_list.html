@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Tasks</title>
+    </head>
+    <body>
+        <div>
+            <h1><a href="/">Tasks</a></h1>
+        </div>
+
+        {% for task in tasks %}
+            <div>
+                 <p>name: {{ task.name }}</p>
+                 <p>key: {{ task.key }}</p>
+                 <p>status: {{ task.status }}</p>
+
+                 {% for user in users %}
+                    <div>
+                        <p>id: {{ user.id }}</p>
+                        <p>name: {{ user.first_name }}</p>
+                        <p>last_name: {{ user.last_name }}</p>
+
+                    </div>
+                 {% endfor %}
+
+                 {% for clild in childrens %}
+                    <div>
+                        <p>id: {{ clild.name }}</p>
+                    </div>
+                 {% endfor %}
+
+            </div>
+        {% endfor %}
+
+    </body>
+</html>
