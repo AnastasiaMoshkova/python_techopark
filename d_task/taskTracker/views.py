@@ -18,12 +18,7 @@ def add(request):
         key = data.get('key')
         user_id = data.get('user_id')
         parent_id = data.get('parent_id')
-        task = Tasks.objects.create()
-        task.name = name
-        task.key = key
-        task.parent_id = parent_id
-        task.user_id = user_id
-        task.status = 'ADD'
+        task=Tasks(name=name, key= key,user_id=user_id,parent_id=parent_id,status = 'ADD')
         task.save()
 
         return HttpResponse('create success')
@@ -39,9 +34,9 @@ def task(request):
     return render(request, 'taskTracker/task.html', {'tasks': tasks_tr,'users':users_tr })
 
 
-def status(request,key):
+def status(request,id):
 
-    tasks = Tasks.objects.filter(key=key)
+    tasks = Tasks.objects.filter(id=id)
     for task in tasks:
         task.status="FIN"
         task.save()
